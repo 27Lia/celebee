@@ -6,56 +6,37 @@ import CategoryBtn from '../components/CategoryBtn';
 import CategoryMappings from '../components/CategoryMappings';
 import { BiEdit } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 function InviteWritePage() {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    setError,
+    trigger,
+  } = useForm();
+  console.log(handleSubmit);
   const token = localStorage.getItem('jwtToken');
   const api = 'https://api.celebee.kro.kr';
   const navigate = useNavigate();
+
   const [selectedButton, setSelectedButton] = useState(null);
   const [imageFromServer, setImageFromServer] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(1);
-
-  const [formData, setFormData] = useState({
-    title: '',
-    date: '',
-    body: '',
-    category: selectedButton,
-    totalNum: 0,
-    money: 0,
-    latitude: '',
-    longitude: '',
-    address: '',
-    imageUrl: selectedImage,
-  });
-
-  // 모집 글 작성 요청
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const fieldValidations = [
-      { field: 'title', error: '제목을 입력해주세요.' },
-      { field: 'date', error: '날짜를 선택해주세요.' },
-      { field: 'totalNum', error: '인원 수를 선택해주세요.' },
-      { field: 'body', error: '내용을 입력해주세요.' },
-      { field: 'category', error: '카테고리를 선택해주세요.' },
-      { field: 'address', error: '장소를 선택해주세요.' },
-      { field: 'imageUrl', error: '이미지를 선택해주세요.' },
-    ];
-
-    const invalidField = fieldValidations.find(
-      ({ field }) =>
-        !formData[field] ||
-        (typeof formData[field] === 'string' && !formData[field].trim()),
-    );
-
-    if (invalidField) {
-      alert(invalidField.error);
+  const onSubmit = async (data) => {
+    if (!selectedImage) {
+      alert('이미지를 선택해주세요.');
       return;
     }
+    data.category = selectedButton;
+    data.imageUrl = selectedImage;
 
     try {
-      const response = await axios.post(`${api}/boards/new-boards`, formData, {
+      const response = await axios.post(`${api}/boards/new-boards`, data, {
         headers: {
           Authorization: token,
         },
@@ -82,10 +63,7 @@ function InviteWritePage() {
     }
 
     if (name === 'money') {
-      const pureNumber = value.replace(/,/g, ''); // 콤마 제거
-      const numericValue = isNaN(parseInt(pureNumber, 10))
-        ? 0
-        : parseInt(pureNumber, 10);
+      const numericValue = parseInt(value.replace(/,/g, ''), 10) || 0; // 콤마 제거 후 숫자로 변환, 숫자가 아니라면 0
 
       // 백만원 초과 검증
       if (numericValue > 1000000) {
@@ -93,22 +71,11 @@ function InviteWritePage() {
         return;
       }
 
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: numericValue,
-      }));
-    }
-
-    // 바디의 글자 수 검증 로직
-    else if (name === 'body' && value.length > 255) {
-      alert('본문의 글자 수는 255글자를 넘을 수 없습니다.');
-      return;
+      setValue('money', numericValue); // 상태는 숫자로 관리
+      e.target.value = numericValue.toLocaleString('en-US');
     } else {
-      // 다른 필드들의 처리 로직
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
+      // 나머지 인풋에 대한 값 설정
+      setValue(name, value);
     }
   };
 
@@ -152,13 +119,8 @@ function InviteWritePage() {
     setSelectedButton(buttonId);
 
     setSelectedImage(null);
-
-    setFormData((prevData) => ({
-      ...prevData,
-      category: buttonId,
-      imageUrl: null,
-    }));
-
+    setValue('category', buttonId);
+    setValue('imageUrl', null);
     try {
       const response = await axios.get(`${api}/cards/${buttonId}/images`);
       setImageFromServer(response.data);
@@ -169,12 +131,14 @@ function InviteWritePage() {
 
   // 지도 좌표 전달
   const handleLocationSelect = (latitude, longitude, address) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      latitude,
-      longitude,
-      address,
-    }));
+    if (!address) {
+      setError('address');
+    } else {
+      // 주소가 입력되었을 때 처리 로직
+      setValue('latitude', latitude);
+      setValue('longitude', longitude);
+      setValue('address', address);
+    }
   };
 
   const handleModalClick = () => {
@@ -187,10 +151,7 @@ function InviteWritePage() {
 
   const handleImageClick = async (imageUrl) => {
     setSelectedImage(imageUrl);
-    setFormData((prevData) => ({
-      ...prevData,
-      imageUrl: imageUrl,
-    }));
+    setValue(imageUrl, imageUrl);
   };
 
   const handleModalBackgroundClick = (event) => {
@@ -217,17 +178,21 @@ function InviteWritePage() {
   return (
     <StyledWritePage>
       <section>
-        <button className="modal-btn" onClick={handleModalClick}>
+        <button
+          className="modal-btn"
+          aria-label="모달 열기"
+          onClick={handleModalClick}
+        >
           <BiEdit className="edit-btn" />
         </button>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <article>
             <div className="card-container">
               <div className="image-container">
-                {formData.imageUrl ? (
+                {selectedImage ? (
                   <img
                     className="main-img"
-                    src={formData.imageUrl}
+                    src={selectedImage}
                     alt="선택된 카테고리의 이미지"
                   />
                 ) : (
@@ -247,63 +212,119 @@ function InviteWritePage() {
           </article>
         </form>
         <div>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <article className="form-box">
               <label>
-                Title:
+                제목
                 <input
                   className="title-date"
                   type="text"
-                  name="title"
-                  value={formData.title}
+                  {...register('title', {
+                    required: '제목을 입력해주세요.',
+                  })}
+                  onBlur={() => {
+                    // onBlur 이벤트가 발생하면 해당 필드의 유효성을 검사합니다.
+                    trigger('title');
+                  }}
                   onChange={handleInputChange}
                 />
               </label>
+              {errors.title && (
+                <span className="error-text">{errors.title.message}</span>
+              )}
               <div className="date-box">
                 <label>
-                  Date:
+                  날짜
                   <input
                     className="date-date"
                     type="date"
-                    name="date"
-                    value={formData.date}
-                    min={currentDate}
+                    {...register('date', {
+                      required: '날짜를 선택해주세요.',
+                      min: currentDate,
+                    })}
+                    onBlur={() => {
+                      // onBlur 이벤트가 발생하면 해당 필드의 유효성을 검사합니다.
+                      trigger('date');
+                    }}
                     onChange={handleInputChange}
                   />
                 </label>
                 <label>
-                  Person:
+                  인원
                   <input
                     className="person-date"
                     type="number"
-                    name="totalNum"
-                    value={formData.totalNum}
-                    min="0"
-                    onChange={handleInputChange}
+                    {...register('totalNum', {
+                      required: '인원 수를 선택해주세요.',
+                      min: {
+                        value: 1,
+                        message: '인원 수는 1 이상이어야 합니다.',
+                      },
+                    })}
+                    onBlur={() => {
+                      // onBlur 이벤트가 발생하면 해당 필드의 유효성을 검사합니다.
+                      trigger('totalNum');
+                    }}
+                    onChange={(e) => {
+                      if (e.target.value < 1) {
+                        e.target.value = 1; // If the user tries to enter a value less than 1, it resets to 1
+                      }
+                      handleInputChange(e);
+                    }}
                   />
-                </label>
+                </label>{' '}
+                {errors.date && (
+                  <div className="error-text">{errors.date.message}</div>
+                )}
+                {errors.totalNum && (
+                  <div className="error-text">{errors.totalNum.message}</div>
+                )}
               </div>
               <label>
-                Money:
+                N/1 금액
                 <input
                   className="money-date"
                   type="text"
-                  name="money"
-                  value={numberWithCommas(formData.money)}
-                  min="0"
-                  onChange={handleInputChange}
+                  {...register('money', {
+                    validate: (value) => {
+                      if (!value) return true; // 입력값이 없는 경우 검증을 통과시킵니다.
+                      const numericValue = parseInt(
+                        value.replace(/,/g, ''),
+                        10,
+                      );
+                      return !isNaN(numericValue) && numericValue >= 1;
+                    },
+                  })}
+                  onChange={(e) => {
+                    const numericString = e.target.value.replace(/[^0-9]/g, '');
+                    setValue('money', numericString);
+                    e.target.value = numberWithCommas(numericString);
+
+                    handleInputChange(e);
+                  }}
                 />
               </label>
               <label>
-                Body:
+                내용
                 <textarea
                   className="body-date"
-                  name="body"
-                  value={formData.body}
+                  {...register('body', {
+                    required: '내용을 입력해주세요.',
+                    maxLength: {
+                      value: 255,
+                      message: '본문의 글자 수는 255글자를 넘을 수 없습니다.',
+                    },
+                  })}
+                  onBlur={() => {
+                    // onBlur 이벤트가 발생하면 해당 필드의 유효성을 검사합니다.
+                    trigger('body');
+                  }}
                   onChange={handleInputChange}
-                  placeholder="최대 255자까지 입력 가능합니다."
                 />
               </label>
+              {errors.body && (
+                <span className="error-text">{errors.body.message}</span>
+              )}
             </article>
           </form>
           {isModalOpen && (
@@ -343,7 +364,7 @@ function InviteWritePage() {
             </div>
           )}
           {/*카테고리*/}
-          <div className="category-btn">
+          <menu className="category-btn">
             {Object.keys(CategoryMappings)
               .filter((key) => key !== 'CATEGORY_ALL')
               .map((key) => {
@@ -360,7 +381,27 @@ function InviteWritePage() {
                   />
                 );
               })}
+          </menu>
+          <div className="search-box">
+            <input
+              type="text"
+              id="address-input"
+              placeholder="주소를 입력해주세요."
+              {...register('address', {
+                required: '주소를 입력해주세요.',
+              })}
+            />
+            <button
+              tabIndex="0"
+              id="search-button"
+              onClick={handleLocationSelect}
+            >
+              검색
+            </button>
           </div>
+          {errors.address && (
+            <span className="error-text">주소를 검색 및 선택해주세요.</span>
+          )}
           <MapKakao onSelectLocation={handleLocationSelect} showSearch={true} />
         </div>
       </section>
@@ -402,7 +443,13 @@ const StyledWritePage = styled.div`
     height: 40px;
     padding: 10px;
   }
-
+  .error-text {
+    color: red;
+    font-size: 12px;
+  }
+  label {
+    position: relative;
+  }
   .form-box label > input,
   textarea,
   .submit-btn,
@@ -412,12 +459,51 @@ const StyledWritePage = styled.div`
     box-shadow: 4px 3px 10px rgba(0, 0, 0, 0.2);
   }
 
+  #map {
+    position: relative;
+    height: 400px;
+  }
+
+  #listings {
+    position: absolute;
+    width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: rgba(255, 255, 255, 0);
+    padding: 10px;
+    z-index: 2;
+  }
+  #listings.filled {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  #toggleButton {
+    width: 80px;
+    height: 28px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    z-index: 999;
+    position: relative;
+    background-color: whitesmoke;
+  }
+  .selected-item::before {
+    content: '✔';
+    color: red;
+    margin-right: 5px;
+  }
+  .search-result-item {
+    cursor: pointer;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+  }
   .main-img {
     width: 400px;
     height: 400px;
   }
   .date-box {
     display: grid;
+
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -429,12 +515,13 @@ const StyledWritePage = styled.div`
   }
 
   .search-box {
-    margin: 10px 0px;
+    position: relative;
     display: flex;
     justify-content: space-around;
     align-items: center;
     height: 38px;
-    background-color: rgba(244, 227, 233, 0.4);
+    background-color: whitesmoke;
+    z-index: 2;
   }
 
   #address-input {
@@ -523,9 +610,10 @@ const StyledWritePage = styled.div`
 
   .modal-btn:active,
   .submit-btn:active,
+  #toggleButton:active,
   #search-button:active {
     transform: translateY(1px); // 클릭 시 버튼을 아래로 2px 이동
-    box-shadow: 1px 1px rgb(0, 0, 0, 0.7);
+    box-shadow: 1px 1px rgb(0, 0, 0, 0.2);
   }
 
   .card-img-container {
