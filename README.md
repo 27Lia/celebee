@@ -1,6 +1,5 @@
 # seb45_main_004(같이의가치)
 <div align=center>
-<img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/078d0451-289b-447d-a693-eeb6e1cab114" width="700" height="300"/>
 </div>
 
 
@@ -13,9 +12,6 @@
 <div align="center">
 <table style="table-layout:fixed">
   <thead>
-  <th align="center"><a href="https://github.com/yawning5"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/ad4ddbf3-9082-4a11-8ab0-38ae50f3cfd3" width="100" alt="yawning5"></a></th>
-  <th align="center"><a href="https://github.com/Donga1125"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/8d27dbde-d59b-4ee2-a42f-5c9d3e456fa5" width="100" alt="Donga1125"></a></th>
-  <th align="center"><a href="https://github.com/hseonghui"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/6375852d-9f99-457c-b3f0-d7ba9f6873a7" width="100" alt="hseonghui"></a></th>
   </thead>
   <tbody>
   <tr>
@@ -50,9 +46,7 @@
 <div align="center">
 <table style="display:grid">
   <thead>
-  <th align="center"><a href="https://github.com/YongILTree1"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/2fba010f-1fe8-4d85-ad0f-d7aa8ba9d8ff" width="100" alt="YongILTree1"></a></th>
-  <th align="center"><a href="https://github.com/27Lia"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/936bcab5-808a-4b2b-a61c-42e5fec81b70" width="100" alt="27Lia"></a></th>
-  <th align="center"><a href="https://github.com/JIAHLEE0213"><img src="https://github.com/codestates-seb/seb45_main_004/assets/130025554/e49f5c51-0dfa-422a-b9c9-75dc392fe22c" width="100" alt="JIAHLEE0213"></a></th>
+
   </thead>
   <tbody>
   <tr>
