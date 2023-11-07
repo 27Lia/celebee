@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { styled } from 'styled-components';
 import CategoryBtn from '../components/CategoryBtn';
@@ -56,7 +56,7 @@ function InvitePage() {
   };
 
   //참여 요청
-  const sendJoinStatus = async () => {
+  const sendJoinStatus = useCallback(async () => {
     try {
       await axios.request({
         method: 'post',
@@ -75,7 +75,7 @@ function InvitePage() {
       alert('로그인 후 이용해주세요.');
       console.error('Error sending join status:', error);
     }
-  };
+  }, [api, boardId, token]);
 
   // 좋아요 요청
   const sendLikeStatus = async (isLiked) => {
@@ -131,7 +131,7 @@ function InvitePage() {
   };
 
   // 좋아요 상태
-  const handleLikeClick = () => {
+  const handleLikeClick = useCallback(() => {
     if (!token) {
       // 토큰이 없다면 로그인되어 있지 않다는 메시지를 표시
       alert('로그인 후 찜 기능을 사용할 수 있습니다.');
@@ -141,7 +141,7 @@ function InvitePage() {
     const newLikeStatus = !isLiked;
     setIsLiked(newLikeStatus);
     sendLikeStatus(newLikeStatus);
-  };
+  }, [token, isLiked]);
 
   // 호스트 페이지 이동
   const hostPageClick = () => {
@@ -156,20 +156,23 @@ function InvitePage() {
   };
 
   // 참여자 페이지 이동
-  const handleParticipantImageClick = (memberId) => {
-    localStorage.setItem('clickedUserId', memberId);
-    const clickedUserId = localStorage.getItem('clickedUserId');
-    const myId = localStorage.getItem('myId');
-    if (clickedUserId === myId) {
-      navigate(`/members/me`);
-    } else {
-      navigate(`/members/${memberId}`); // 유저 페이지로 이동
-    }
-  };
+  const handleParticipantImageClick = useCallback(
+    (memberId) => {
+      localStorage.setItem('clickedUserId', memberId);
+      const clickedUserId = localStorage.getItem('clickedUserId');
+      const myId = localStorage.getItem('myId');
+      if (clickedUserId === myId) {
+        navigate(`/members/me`);
+      } else {
+        navigate(`/members/${memberId}`); // 유저 페이지로 이동
+      }
+    },
+    [navigate],
+  );
 
-  const numberWithCommas = (x) => {
+  const numberWithCommas = useCallback((x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  };
+  }, []);
 
   // 드롭다운을 토글하는 함수
   const toggleDropdown = () => {

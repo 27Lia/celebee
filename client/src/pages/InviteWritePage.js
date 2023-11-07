@@ -27,7 +27,7 @@ function InviteWritePage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(1);
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     if (!selectedImage) {
       alert('이미지를 선택해주세요.');
       return;
@@ -35,17 +35,18 @@ function InviteWritePage() {
     data.category = selectedButton;
     data.imageUrl = selectedImage;
 
-    try {
-      const response = await axios.post(`${api}/boards/new-boards`, data, {
+    axios
+      .post(`${api}/boards/new-boards`, data, {
         headers: {
           Authorization: token,
         },
+      })
+      .then((response) => {
+        navigate(`/boards/${response.data.boardId}`);
+      })
+      .catch((error) => {
+        console.error('Error creating card:', error);
       });
-
-      navigate(`/boards/${response.data.boardId}`);
-    } catch (error) {
-      console.error('Error creating card:', error);
-    }
   };
 
   // 입력값 관리
