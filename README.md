@@ -26,10 +26,12 @@
     - 유저정보 조회 및 수정<br/>
   </td>
   <td align="left">
-    - server 환경 구축 및 배포(AWS)<br/> 
+    - 프로젝트 서버 관리 <br/>
+    - AWS를 이용해 server 환경 구축 및 FE/BE 배포<br/> 
+    - DNS 및 HTTPS 적용  <br/> 
     - 모임 참여, 모임 마감 처리<br/> 
-    - 이미지 처리<br/> 
-    - 알림 <br/>
+    - AWS S3를 통한 이미지 처리<br/> 
+    - 알림 기능<br/>
   </td>
   <td align="left">
     - 모임 글 작성 및 조회 <br/>    
@@ -95,6 +97,8 @@
 |<img src = "https://github.com/27Lia/fe-sprint-coz-shopping/assets/117743861/d26394d1-6a03-4773-9b62-bc45a1ab1f35" width = "500" height="250">|
 |<b>글 상세 페이지</b>|
 |<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/47e1169c-5528-47ac-9fc2-109565daf31d" width = "500" height="250">|
+|<b>글 작성 페이지</b>|
+|<img src = "https://github.com/27Lia/fe-sprint-coz-shopping/assets/117743861/d26394d1-6a03-4773-9b62-bc45a1ab1f35" width = "500" height="250">|
 |<b>마이페이지</b>|
 |<img src = "https://github.com/codestates-seb/seb45_main_004/assets/129840158/a6aec436-671e-4c6f-9a62-4ac750004f92" width = "500" height="250">|
 <br>
@@ -134,6 +138,21 @@
 ![Discord](https://img.shields.io/badge/discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
 ![Notion](https://img.shields.io/badge/notion-000000?style=for-the-badge&logo=notion&logoColor=white)
 ![Zoom](https://img.shields.io/badge/zoom-2D8CFF?style=for-the-badge&logo=zoom&logoColor=white)
+
+## git 규칙
+|Type|내용|
+|----|---|
+|feat|새로운 기능 추가|
+|fix|버그 수정|
+|docs|문서 수정|
+|style|코드 포맷팅, 세미콜론 누락 (코드변경 x)|
+|refactor|코드 리팩토링|
+
+✅ **사용 예시**
+[직무] Type : 변경 내용
+
+ex) header 컴포넌트 작업 완료 ➡️
+[FE]feat : header component 작업 완료
 
 <br>
 <h2><a href="https://www.notion.so/codestates/ERD-146a70115df14c63bbb7295364e11703">▶테이블 명세서</a></h2>
